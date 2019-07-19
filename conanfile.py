@@ -25,7 +25,7 @@ conan_basic_setup()''')
 
     def requirements(self):
         self.requires("libcurl/7.61.1@bincrafters/stable")
-        self.requires("hdf5/1.10.2-dm2@bilke/testing")
+        self.requires("hdf5/1.10.5-dm1@bilke/testing")
     def configure_cmake(self):
         cmake = CMake(self)
         cmake.definitions["BUILD_TESTING"] = False
