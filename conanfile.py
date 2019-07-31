@@ -28,8 +28,8 @@ conan_basic_setup()''')
         self.requires("hdf5/1.10.5-dm1@bilke/testing")
     def configure_cmake(self):
         cmake = CMake(self)
-        cmake.definitions["BUILD_TESTING"] = False
-        cmake.definitions["BUILD_TESTSETS"] = False
+        cmake.definitions["ENABLE_TESTS"] = False
+        cmake.definitions["BUILD_UTILITIES"] = False
         cmake.configure(source_folder="netcdf-c")
         return cmake
 
