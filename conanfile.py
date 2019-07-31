@@ -23,6 +23,15 @@ class NetcdfcConan(ConanFile):
 include(${CMAKE_BINARY_DIR}/conanbuildinfo.cmake)
 conan_basic_setup()''')
 
+        # Fix overwriting of CMAKE_MODULE_PATH set by Conan
+        tools.replace_in_file("netcdf-c/CMakeLists.txt",
+            "SET(CMAKE_MODULE_PATH",
+            "SET(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH}")
+        # Fix usage of custom FindHDF5.cmake in hdf5 package
+        tools.replace_in_file("netcdf-c/CMakeLists.txt",
+            "FIND_PACKAGE(HDF5 NAMES ${SEARCH_PACKAGE_NAME} COMPONENTS C HL NO_MODULES REQUIRED ${NC_HDF5_LINK_TYPE})",
+            "FIND_PACKAGE(HDF5 COMPONENTS C HL NO_MODULES REQUIRED ${NC_HDF5_LINK_TYPE})")
+
     def requirements(self):
         self.requires("libcurl/7.64.1@bincrafters/stable")
         self.requires("hdf5/1.10.5-dm1@bilke/testing")
