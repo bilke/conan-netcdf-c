@@ -24,7 +24,7 @@ include(${CMAKE_BINARY_DIR}/conanbuildinfo.cmake)
 conan_basic_setup()''')
 
     def requirements(self):
-        self.requires("libcurl/7.61.1@bincrafters/stable")
+        self.requires("libcurl/7.64.1@bincrafters/stable")
         self.requires("hdf5/1.10.5-dm1@bilke/testing")
     def configure_cmake(self):
         cmake = CMake(self)
