@@ -1,5 +1,5 @@
 from conans import ConanFile, CMake, tools
-
+from conans.errors import ConanInvalidConfiguration
 
 class NetcdfcConan(ConanFile):
     name = "netcdf-c"
@@ -28,22 +28,32 @@ conan_basic_setup()''')
             "SET(CMAKE_MODULE_PATH",
             "SET(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH}")
         # Fix usage of custom FindHDF5.cmake in hdf5 package
+        # Also: Fix NO_MODULES to NO_MODULE, removed link type
         tools.replace_in_file("netcdf-c/CMakeLists.txt",
             "FIND_PACKAGE(HDF5 NAMES ${SEARCH_PACKAGE_NAME} COMPONENTS C HL NO_MODULES REQUIRED ${NC_HDF5_LINK_TYPE})",
-            "FIND_PACKAGE(HDF5 COMPONENTS C HL NO_MODULES REQUIRED ${NC_HDF5_LINK_TYPE})")
+            '''set(HDF5_DIR ${CONAN_HDF5_ROOT}/cmake/hdf5)
+      FIND_PACKAGE(HDF5 REQUIRED COMPONENTS C HL NO_MODULE)''')
+
+    def config_options(self):
+        if self.settings.os == "Windows":
+            del self.options.fPIC
+
+    def configure(self):
+        del self.settings.compiler.libcxx
+        del self.settings.compiler.cppstd
+        if self.settings.os == "Windows" and self.options.shared:
+            raise ConanInvalidConfiguration("Windows shared builds are not supported right now")
 
     def requirements(self):
         self.requires("libcurl/7.64.1@bincrafters/stable")
         self.requires("hdf5/1.10.5-dm1@bilke/testing")
+
     def configure_cmake(self):
         cmake = CMake(self)
         cmake.definitions["ENABLE_TESTS"] = False
         cmake.definitions["BUILD_UTILITIES"] = False
         cmake.configure(source_folder="netcdf-c")
         return cmake
-
-    def configure(self):
-        del self.settings.compiler.libcxx
 
     def build(self):
         cmake = self.configure_cmake()
