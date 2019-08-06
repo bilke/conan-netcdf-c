@@ -33,6 +33,9 @@ conan_basic_setup()''')
             "FIND_PACKAGE(HDF5 NAMES ${SEARCH_PACKAGE_NAME} COMPONENTS C HL NO_MODULES REQUIRED ${NC_HDF5_LINK_TYPE})",
             '''set(HDF5_DIR ${CONAN_HDF5_ROOT}/cmake/hdf5)
       FIND_PACKAGE(HDF5 REQUIRED COMPONENTS C HL NO_MODULE)''')
+        tools.replace_in_file("netcdf-c/liblib/CMakeLists.txt",
+            "TARGET_LINK_LIBRARIES(netcdf ${TLL_LIBS})",
+            "TARGET_LINK_LIBRARIES(netcdf ${TLL_LIBS} ${CONAN_LIBS})")
 
     def config_options(self):
         if self.settings.os == "Windows":
