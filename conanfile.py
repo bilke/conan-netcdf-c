@@ -9,8 +9,8 @@ class NetcdfcConan(ConanFile):
     url = "https://github.com/bilke/conan-netcdf-c"
     description = "Unidata network Common Data Form"
     settings = "os", "compiler", "build_type", "arch"
-    options = {"shared": [True, False], "fPIC": [True, False]}
-    default_options = "shared=False", "fPIC=True"
+    options = {"shared": [True, False], "fPIC": [True, False], "netcdf_4": [True, False]}
+    default_options = "shared=False", "fPIC=True", "netcdf_4=True"
     generators = "cmake"
 
     def source(self):
@@ -48,13 +48,14 @@ conan_basic_setup()''')
             raise ConanInvalidConfiguration("Windows shared builds are not supported right now")
 
     def requirements(self):
-        self.requires("libcurl/7.64.1@bincrafters/stable")
-        self.requires("hdf5/1.10.5-dm1@bilke/testing")
+        if self.options.netcdf_4:
+            self.requires("hdf5/1.10.5-dm1@bilke/testing")
 
     def configure_cmake(self):
         cmake = CMake(self)
         cmake.definitions["ENABLE_TESTS"] = False
         cmake.definitions["BUILD_UTILITIES"] = False
+        cmake.definitions["ENABLE_NETCDF_4"] = self.options.netcdf_4
         cmake.configure(source_folder="netcdf-c")
         return cmake
 
