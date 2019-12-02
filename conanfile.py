@@ -50,7 +50,7 @@ conan_basic_setup()''')
 
     def requirements(self):
         if self.options.netcdf_4:
-            self.requires("hdf5/1.10.5-dm1@bilke/testing")
+            self.requires("hdf5/1.10.5-dm2@bilke/testing")
         if self.options.dap:
             self.requires("libcurl/7.64.1@bincrafters/stable")
 
