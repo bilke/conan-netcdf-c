@@ -4,7 +4,7 @@ from conans.errors import ConanInvalidConfiguration
 
 class NetcdfcConan(ConanFile):
     name = "netcdf-c"
-    version = "4.6.2"
+    version = "4.6.2-1"
     license = "MIT"
     author = "Lars Bilke, lars.bilke@ufz.de"
     url = "https://github.com/bilke/conan-netcdf-c"
@@ -22,7 +22,7 @@ class NetcdfcConan(ConanFile):
     def source(self):
         self.run(
             "git clone --depth=1 --branch v{0} https://github.com/Unidata/netcdf-c.git".format(
-                self.version
+                self.version.split("-")[0]
             )
         )
         # This small hack might be useful to guarantee proper /MT /MD linkage
