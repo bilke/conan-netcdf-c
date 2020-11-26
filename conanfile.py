@@ -1,6 +1,7 @@
 from conans import ConanFile, CMake, tools
 from conans.errors import ConanInvalidConfiguration
 
+
 class NetcdfcConan(ConanFile):
     name = "netcdf-c"
     version = "4.6.2"
@@ -9,34 +10,51 @@ class NetcdfcConan(ConanFile):
     url = "https://github.com/bilke/conan-netcdf-c"
     description = "Unidata network Common Data Form"
     settings = "os", "compiler", "build_type", "arch"
-    options = {"shared": [True, False], "fPIC": [True, False],
-        "netcdf_4": [True, False], "dap": [True, False]}
+    options = {
+        "shared": [True, False],
+        "fPIC": [True, False],
+        "netcdf_4": [True, False],
+        "dap": [True, False],
+    }
     default_options = "shared=False", "fPIC=True", "netcdf_4=True", "dap=False"
     generators = "cmake"
 
     def source(self):
-        self.run("git clone --depth=1 --branch v{0} https://github.com/Unidata/netcdf-c.git".format(self.version))
+        self.run(
+            "git clone --depth=1 --branch v{0} https://github.com/Unidata/netcdf-c.git".format(
+                self.version
+            )
+        )
         # This small hack might be useful to guarantee proper /MT /MD linkage
         # in MSVC if the packaged project doesn't have variables to set it
         # properly
-        tools.replace_in_file("netcdf-c/CMakeLists.txt", "project(netCDF C)",
-                              '''project(netCDF C)
+        tools.replace_in_file(
+            "netcdf-c/CMakeLists.txt",
+            "project(netCDF C)",
+            """project(netCDF C)
 include(${CMAKE_BINARY_DIR}/conanbuildinfo.cmake)
-conan_basic_setup()''')
+conan_basic_setup()""",
+        )
 
         # Fix overwriting of CMAKE_MODULE_PATH set by Conan
-        tools.replace_in_file("netcdf-c/CMakeLists.txt",
+        tools.replace_in_file(
+            "netcdf-c/CMakeLists.txt",
             "SET(CMAKE_MODULE_PATH",
-            "SET(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH}")
+            "SET(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH}",
+        )
         # Fix usage of custom FindHDF5.cmake in hdf5 package
         # Also: Fix NO_MODULES to NO_MODULE, removed link type
-        tools.replace_in_file("netcdf-c/CMakeLists.txt",
+        tools.replace_in_file(
+            "netcdf-c/CMakeLists.txt",
             "FIND_PACKAGE(HDF5 NAMES ${SEARCH_PACKAGE_NAME} COMPONENTS C HL NO_MODULES REQUIRED ${NC_HDF5_LINK_TYPE})",
-            '''set(HDF5_DIR ${CONAN_HDF5_ROOT}/cmake/hdf5)
-      FIND_PACKAGE(HDF5 REQUIRED COMPONENTS C HL NO_MODULE)''')
-        tools.replace_in_file("netcdf-c/liblib/CMakeLists.txt",
+            """set(HDF5_DIR ${CONAN_HDF5_ROOT}/cmake/hdf5)
+      FIND_PACKAGE(HDF5 REQUIRED COMPONENTS C HL NO_MODULE)""",
+        )
+        tools.replace_in_file(
+            "netcdf-c/liblib/CMakeLists.txt",
             "TARGET_LINK_LIBRARIES(netcdf ${TLL_LIBS})",
-            "TARGET_LINK_LIBRARIES(netcdf ${TLL_LIBS} ${CONAN_LIBS})")
+            "TARGET_LINK_LIBRARIES(netcdf ${TLL_LIBS} ${CONAN_LIBS})",
+        )
 
     def config_options(self):
         if self.settings.os == "Windows":
@@ -46,11 +64,13 @@ conan_basic_setup()''')
         del self.settings.compiler.libcxx
         del self.settings.compiler.cppstd
         if self.settings.os == "Windows" and self.options.shared:
-            raise ConanInvalidConfiguration("Windows shared builds are not supported right now")
+            raise ConanInvalidConfiguration(
+                "Windows shared builds are not supported right now"
+            )
 
     def requirements(self):
         if self.options.netcdf_4:
-            self.requires("hdf5/1.10.5-dm2@bilke/testing")
+            self.requires("hdf5/1.12.0")
         if self.options.dap:
             self.requires("libcurl/7.64.1@bincrafters/stable")
 
@@ -73,4 +93,3 @@ conan_basic_setup()''')
 
     def package_info(self):
         self.cpp_info.libs = ["netcdf"]
-
